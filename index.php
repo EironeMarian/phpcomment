@@ -15,8 +15,11 @@
         form {
             margin-top: 30px;
             max-width: 500px;
-            margin-left: auto;
+            margin-left: 0;
             margin-right: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
 
         input, textarea {
@@ -91,6 +94,8 @@
 <?php
 $jsonString = file_get_contents('comments.json');
 $comments = json_decode($jsonString, true);
+
+$comments = array_reverse($comments);
 
 foreach ($comments as $comment) {
     echo '<div class="comment">';
