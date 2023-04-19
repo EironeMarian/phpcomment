@@ -89,11 +89,9 @@
 </body>
 </html>
 <?php
-// JSON dosyasını okuyarak verileri diziye dönüştür
 $jsonString = file_get_contents('comments.json');
 $comments = json_decode($jsonString, true);
 
-// Her yorum için HTML çıktısı oluştur
 foreach ($comments as $comment) {
     echo '<div class="comment">';
     echo '<h3>' . $comment['name'] . '</h3>';
