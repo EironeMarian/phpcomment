@@ -94,15 +94,28 @@
 <?php
 $jsonString = file_get_contents('comments.json');
 $comments = json_decode($jsonString, true);
-
 $comments = array_reverse($comments);
 
+$forbiddenWords = array('küfür1', 'küfür2', 'küfür3');
+
 foreach ($comments as $comment) {
-    echo '<div class="comment">';
-    echo '<h3>' . $comment['name'] . '</h3>';
-    echo '<p>' . $comment['comment'] . '</p>';
-    echo '<span>' . $comment['email'] . '</span>';
-    echo '</div>';
+    $commentText = strtolower($comment['comment']);
+    $containsForbiddenWord = false;
+
+    foreach ($forbiddenWords as $word) {
+        if (strpos($commentText, $word) !== false) {
+            $containsForbiddenWord = true;
+            break;
+        }
+    }
+
+    if (!$containsForbiddenWord) {
+        echo '<div class="comment">';
+        echo '<h3>' . $comment['name'] . '</h3>';
+        echo '<p>' . $comment['comment'] . '</p>';
+        echo '<span>' . $comment['email'] . '</span>';
+        echo '</div>';
+    }
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -111,11 +124,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         'email' => $_POST['email'],
         'comment' => $_POST['comment']
     );
-    
-    $jsonString = file_get_contents('comments.json');
-    $comments = json_decode($jsonString, true);
-    $comments[] = $data;
-    $jsonData = json_encode($comments);
-    file_put_contents('comments.json', $jsonData);
-}
+
+    $commentText = strtolower($_POST['comment']);
+    $containsForbiddenWord = false;
+
+    foreach ($forbiddenWords as $word) {
+        if (strpos($commentText, $word) !== false) {
+            $containsForbiddenWord = true;
+            break;
+        }
+    }
+
+    if (!$containsForbiddenWord) {
+        $jsonString = file_get_contents('comments.json');
+        $comments = json_decode($jsonString, true);
+        $comments[] = $data;
+        $jsonData = json_encode($comments);
+        file_put_contents('comments.json', $jsonData);
+    }
+ }
 ?>
