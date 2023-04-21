@@ -1,10 +1,6 @@
-# phpcomment
-Adding comments to blog posts
-
-comments are stored in json \n
 security vulnerabilities fixed ( directory validation and XSS )
+
+comments are stored in json
+
 word filtering
 
-TO-DO
-rate-limit
-respond to comments
