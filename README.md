@@ -1,7 +1,7 @@
 # phpcomment
 Adding comments to blog posts
 
-comments are stored in json
+comments are stored in json \n
 security vulnerabilities fixed ( directory validation and XSS )
 word filtering
 
