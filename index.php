@@ -70,6 +70,17 @@
             font-size: 12px;
             color: #999;
         }
+
+        /* Yeni eklenen özellikler */
+        .reply {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .reply textarea {
+            height: 100px;
+        }
     </style>
 </head>
 <body>
@@ -91,8 +102,13 @@
 </html>
 </body>
 </html>
-<?php
-$jsonString = file_get_contents('comments.json');
+    <?php
+$jsonPath = realpath('comments.json');
+if (basename($jsonPath) !== 'comments.json') {
+    die('Invalid file path');
+}
+
+$jsonString = file_get_contents($jsonPath);
 $comments = json_decode($jsonString, true);
 $comments = array_reverse($comments);
 
@@ -111,21 +127,23 @@ foreach ($comments as $comment) {
 
     if (!$containsForbiddenWord) {
         echo '<div class="comment">';
-        echo '<h3>' . $comment['name'] . '</h3>';
-        echo '<p>' . $comment['comment'] . '</p>';
-        echo '<span>' . $comment['email'] . '</span>';
+        echo '<h3>' . htmlspecialchars($comment['name'], ENT_QUOTES, 'UTF-8') . '</h3>';
+        echo '<p>' . htmlspecialchars($comment['comment'], ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<span>' . htmlspecialchars($comment['email'], ENT_QUOTES, 'UTF-8') . '</span>';
         echo '</div>';
     }
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $data = array(
-        'name' => $_POST['name'],
-        'email' => $_POST['email'],
-        'comment' => $_POST['comment']
-    );
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $comment = filter_var($_POST['comment'], FILTER_SANITIZE_STRING);
 
-    $commentText = strtolower($_POST['comment']);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die('Invalid email format');
+    }
+
+    $commentText = strtolower($comment);
     $containsForbiddenWord = false;
 
     foreach ($forbiddenWords as $word) {
@@ -136,11 +154,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (!$containsForbiddenWord) {
-        $jsonString = file_get_contents('comments.json');
+        $jsonPath = realpath('comments.json');
+        if (basename($jsonPath) !== 'comments.json') {
+            die('Invalid file path');
+        }
+
+        $jsonString = file_get_contents($jsonPath);
         $comments = json_decode($jsonString, true);
-        $comments[] = $data;
+        $comments[] = array(
+            'name' => $name,
+            'email' => $email,
+            'comment' => $comment
+        );
         $jsonData = json_encode($comments);
-        file_put_contents('comments.json', $jsonData);
+        file_put_contents($jsonPath, $jsonData);
     }
- }
+}
 ?>
